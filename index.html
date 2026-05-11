@@ -447,10 +447,11 @@
 
     .note { font-size: 0.75rem; color: var(--gray-500); text-align: center; padding-top: 0.5rem; }
 
-    /* ── Card ordering (results first, params second) ── */
-    .card-results { order: 1; }
-    .adjust-nudge { order: 2; text-align: center; font-size: 0.8rem; color: var(--gray-500); padding: 0.1rem 0; letter-spacing: 0.01em; }
-    .card-params  { order: 3; }
+    /* ── Card ordering ── */
+    .card-results-top    { order: 1; }
+    .adjust-nudge        { order: 2; text-align: center; font-size: 0.8rem; color: var(--gray-500); padding: 0.1rem 0; letter-spacing: 0.01em; }
+    .card-params         { order: 3; }
+    .card-results-detail { order: 4; }
 
     /* ── Responsive ── */
     @media (max-width: 780px) {
@@ -647,9 +648,8 @@
 
   <p class="adjust-nudge" id="h-nudge">⚙️ Adjust the parameters below to personalise your simulation</p>
 
-  <!-- ═══ RESULTS ═══ -->
-  <div class="card card-results">
-    <div class="card-title" id="h-card-results">Results – 5-year simulation</div>
+  <!-- ═══ RESULTS – top summary ═══ -->
+  <div class="card card-results-top">
 
     <div class="breakeven" id="breakeven-bar">
       <div class="be-icon">🎯</div>
@@ -677,7 +677,7 @@
       </div>
     </div>
 
-    <div class="metrics-row">
+    <div class="metrics-row" style="margin-bottom:0;">
       <div class="metric-card">
         <div class="metric-icon">🌿</div>
         <div>
@@ -693,6 +693,12 @@
         </div>
       </div>
     </div>
+
+  </div>
+
+  <!-- ═══ RESULTS – detail (table + chart) ═══ -->
+  <div class="card card-results-detail">
+    <div class="card-title" id="h-card-results">Results – 5-year simulation</div>
 
     <table class="breakdown">
       <thead>
