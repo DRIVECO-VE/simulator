@@ -91,6 +91,10 @@
       opacity: 1;
     }
 
+    /* ── Embed mode ── */
+    body.embed header { display: none; }
+    body.embed main   { padding: 0.75rem; }
+
     /* ── Layout ── */
     main {
       max-width: 1120px;
@@ -188,6 +192,15 @@
       gap: 0.4rem;
     }
 
+    /* ── Mileage bar ── */
+    .mileage-section {
+      margin-top: 1.25rem;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      border: 1px solid var(--gray-200);
+    }
+
     /* ── Param rows ── */
     .param-row { margin-bottom: 1rem; }
     .param-row:last-child { margin-bottom: 0; }
@@ -277,12 +290,56 @@
       margin-top: 0.5rem;
     }
 
-    /* ── Usage row ── */
-    .usage-row {
+    /* ── Advanced section ── */
+    .advanced-toggle {
+      margin-top: 1.25rem;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      background: var(--gray-50);
+      overflow: hidden;
+    }
+
+    .advanced-summary {
+      padding: 0.8rem 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-600);
+      user-select: none;
+      gap: 0.5rem;
+      transition: background 0.15s;
+    }
+
+    .advanced-summary:hover { background: var(--gray-100); }
+    .advanced-summary::-webkit-details-marker { display: none; }
+    .advanced-summary::marker { display: none; }
+
+    .advanced-toggle .adv-chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      color: var(--gray-500);
+    }
+
+    .advanced-toggle[open] .adv-chevron { transform: rotate(180deg); }
+
+    .advanced-content {
+      padding: 1.2rem;
+      border-top: 1px solid var(--gray-200);
+      background: var(--white);
+    }
+
+    .advanced-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.25rem;
-      margin-top: 1.25rem;
     }
 
     /* ── Results ── */
@@ -392,10 +449,10 @@
 
     /* ── Responsive ── */
     @media (max-width: 780px) {
-      .params-grid  { grid-template-columns: 1fr; }
-      .usage-row    { grid-template-columns: 1fr; }
-      .results-hero { grid-template-columns: 1fr 1fr; }
-      .metrics-row  { grid-template-columns: 1fr; }
+      .params-grid   { grid-template-columns: 1fr; }
+      .advanced-grid { grid-template-columns: 1fr; }
+      .results-hero  { grid-template-columns: 1fr 1fr; }
+      .metrics-row   { grid-template-columns: 1fr; }
     }
     @media (max-width: 500px) {
       main  { padding: 1rem; }
@@ -428,11 +485,13 @@
   <div class="card">
     <div class="card-title" id="h-card-params">Simulator Parameters</div>
 
+    <!-- Fuel toggle -->
     <div class="fuel-toggle">
       <button class="fuel-btn active" id="btn-petrol" onclick="setFuel('petrol')">⛽ <span id="h-fuel-petrol">Petrol</span></button>
       <button class="fuel-btn"        id="btn-diesel" onclick="setFuel('diesel')">🛢️ <span id="h-fuel-diesel">Diesel</span></button>
     </div>
 
+    <!-- 1 – Vehicle models -->
     <div class="params-grid">
 
       <!-- ICE -->
@@ -447,7 +506,7 @@
           <div class="conso-badge" id="conso-badge-th">⛽ 6.5 L/100km</div>
           <div id="row-conso-custom-th" style="display:none; margin-top:0.75rem;">
             <div class="param-label">
-              <span class="param-name" id="lbl-conso-th">Petrol consumption</span>
+              <span class="param-name" id="lbl-conso-th">Consumption</span>
               <span class="param-val"  id="val-conso-th">7.5 L/100km</span>
             </div>
             <input type="range" id="conso-th" min="3" max="20" step="0.5" value="7.5" oninput="onCustomConsoTh()">
@@ -481,77 +540,20 @@
             <input type="range" id="conso-ev" min="10" max="35" step="0.5" value="17" oninput="onCustomConso()">
           </div>
         </div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-pct-home">Home charging share</span>
-            <span class="param-val"  id="val-pct-home">70 %</span>
-          </div>
-          <input type="range" id="pct-home" min="0" max="100" step="5" value="70" oninput="update()">
-        </div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-tarif-home">Home rate</span>
-            <span class="param-val"  id="val-tarif-home">0.25 €/kWh</span>
-          </div>
-          <input type="range" id="tarif-home" min="0.10" max="0.55" step="0.01" value="0.25" oninput="update()">
-        </div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-tarif-driveco">DRIVECO rate (public charging)</span>
-            <span class="param-val"  id="val-tarif-driveco">0.39 €/kWh</span>
-          </div>
-          <input type="range" id="tarif-driveco" min="0.39" max="0.80" step="0.01" value="0.39" oninput="update()">
-        </div>
       </div>
     </div>
 
-    <!-- Usage + CO2 -->
-    <div class="usage-row">
-      <div class="param-section">
-        <div class="section-header">🛣️ <span id="h-sec-usage">Usage</span></div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-km">Annual mileage</span>
-            <span class="param-val"  id="val-km">15,000 km/year</span>
-          </div>
-          <input type="range" id="km" min="3000" max="80000" step="1000" value="15000" oninput="update()">
-        </div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-years">Ownership period</span>
-            <span class="param-val"  id="val-years">5 years</span>
-          </div>
-          <input type="range" id="years" min="1" max="10" step="1" value="5" oninput="update()">
-        </div>
+    <!-- 2 – Annual mileage -->
+    <div class="mileage-section">
+      <div class="param-label">
+        <span style="font-size:0.82rem; color:var(--gray-600);">🛣️ <span id="h-km">Annual mileage</span></span>
+        <span class="param-val" id="val-km">15,000 km/year</span>
       </div>
-
-      <div class="param-section">
-        <div class="section-header">🌱 <span id="h-sec-co2">CO₂ Footprint</span></div>
-
-        <div class="param-row">
-          <div class="param-label">
-            <span class="param-name" id="h-co2-mix">Electricity mix</span>
-            <span class="param-val"  id="val-co2-mix">52 gCO₂/kWh</span>
-          </div>
-          <input type="range" id="co2-mix" min="20" max="700" step="10" value="52" oninput="update()">
-        </div>
-
-        <p id="h-co2-hint" style="font-size:0.78rem; color:var(--gray-600); margin-top:0.6rem; line-height:1.7;">
-          🇫🇷 France: ~52 g/kWh<br>
-          🇪🇺 EU average: ~250 g/kWh<br>
-          🇩🇪 Germany: ~380 g/kWh
-        </p>
-      </div>
+      <input type="range" id="km" min="3000" max="80000" step="1000" value="15000" oninput="update()">
     </div>
 
-    <!-- Purchase price -->
+    <!-- 3 – Purchase prices -->
     <div class="section-sep" id="h-sep-achat">Purchase Price</div>
-
     <div class="params-grid">
       <div class="param-section">
         <div class="section-header">🚗 <span id="h-sec-achat-th">ICE Vehicle</span></div>
@@ -568,6 +570,74 @@
         </div>
       </div>
     </div>
+
+    <!-- 4 – Advanced settings (collapsed) -->
+    <details class="advanced-toggle" id="advanced-details">
+      <summary class="advanced-summary">
+        <span id="h-advanced-toggle">⚙️ Advanced settings</span>
+        <svg class="adv-chevron" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </summary>
+      <div class="advanced-content">
+        <div class="advanced-grid">
+
+          <!-- Charging -->
+          <div class="param-section">
+            <div class="section-header">🔌 <span id="h-sec-charging">Charging</span></div>
+
+            <div class="param-row">
+              <div class="param-label">
+                <span class="param-name" id="h-pct-home">Home charging share</span>
+                <span class="param-val"  id="val-pct-home">70 %</span>
+              </div>
+              <input type="range" id="pct-home" min="0" max="100" step="5" value="70" oninput="update()">
+            </div>
+
+            <div class="param-row">
+              <div class="param-label">
+                <span class="param-name" id="h-tarif-home">Home rate</span>
+                <span class="param-val"  id="val-tarif-home">0.25 €/kWh</span>
+              </div>
+              <input type="range" id="tarif-home" min="0.10" max="0.55" step="0.01" value="0.25" oninput="update()">
+            </div>
+
+            <div class="param-row">
+              <div class="param-label">
+                <span class="param-name" id="h-tarif-driveco">DRIVECO rate (public)</span>
+                <span class="param-val"  id="val-tarif-driveco">0.39 €/kWh</span>
+              </div>
+              <input type="range" id="tarif-driveco" min="0.39" max="0.80" step="0.01" value="0.39" oninput="update()">
+            </div>
+          </div>
+
+          <!-- Duration & CO2 -->
+          <div class="param-section">
+            <div class="section-header">🌱 <span id="h-sec-co2">CO₂ & Duration</span></div>
+
+            <div class="param-row">
+              <div class="param-label">
+                <span class="param-name" id="h-years">Ownership period</span>
+                <span class="param-val"  id="val-years">5 years</span>
+              </div>
+              <input type="range" id="years" min="1" max="10" step="1" value="5" oninput="update()">
+            </div>
+
+            <div class="param-row">
+              <div class="param-label">
+                <span class="param-name" id="h-co2-mix">Electricity mix</span>
+                <span class="param-val"  id="val-co2-mix">52 gCO₂/kWh</span>
+              </div>
+              <input type="range" id="co2-mix" min="20" max="700" step="10" value="52" oninput="update()">
+            </div>
+
+            <p id="h-co2-hint" style="font-size:0.75rem; color:var(--gray-600); margin-top:0.7rem; line-height:1.8;">
+              🇫🇷 France: ~52 g/kWh<br>🇪🇺 EU avg: ~250 g/kWh<br>🇩🇪 Germany: ~380 g/kWh
+            </p>
+          </div>
+        </div>
+      </div>
+    </details>
   </div>
 
   <!-- ═══ RESULTS ═══ -->
@@ -653,83 +723,83 @@
 </main>
 
 <script>
-// ── Top 20 ICE models in Europe (real-world consumption) ─────────────────────
+// ── Top 20 ICE models in Europe – ordered by sales volume ────────────────────
 const ICE_MODELS = [
-  { name: 'Dacia Sandero',          petrol: 6.5,  diesel: 4.8  },
-  { name: 'Volkswagen Golf',        petrol: 6.5,  diesel: 4.8  },
-  { name: 'Peugeot 208',           petrol: 5.8,  diesel: 4.3  },
-  { name: 'Renault Clio',          petrol: 6.0,  diesel: 4.5  },
-  { name: 'Toyota Yaris',          petrol: 5.5,  diesel: null  },
-  { name: 'Skoda Octavia',         petrol: 6.3,  diesel: 4.9  },
-  { name: 'Volkswagen Polo',       petrol: 5.8,  diesel: 4.5  },
-  { name: 'Dacia Duster',          petrol: 7.5,  diesel: 5.5  },
-  { name: 'Volkswagen Tiguan',     petrol: 7.8,  diesel: 5.8  },
-  { name: 'Ford Puma',             petrol: 6.2,  diesel: null  },
-  { name: 'Opel Astra',            petrol: 6.5,  diesel: 4.9  },
-  { name: 'BMW 3 Series',          petrol: 7.2,  diesel: 5.5  },
-  { name: 'Mercedes C-Class',      petrol: 7.5,  diesel: 5.6  },
-  { name: 'Peugeot 3008',          petrol: 7.2,  diesel: 5.3  },
-  { name: 'Renault Megane',        petrol: 6.8,  diesel: 4.9  },
-  { name: 'Kia Sportage',          petrol: 7.5,  diesel: 5.5  },
-  { name: 'Ford Focus',            petrol: 6.6,  diesel: 4.8  },
-  { name: 'Hyundai Tucson',        petrol: 7.5,  diesel: 5.5  },
-  { name: 'SEAT Ibiza',            petrol: 5.8,  diesel: 4.4  },
-  { name: 'Citroën C3',            petrol: 5.6,  diesel: 4.3  },
+  { name: 'Dacia Sandero',      petrol: 6.5, diesel: 4.8  },
+  { name: 'Toyota Yaris',       petrol: 5.5, diesel: null  },
+  { name: 'Volkswagen Golf',    petrol: 6.5, diesel: 4.8  },
+  { name: 'Peugeot 208',       petrol: 5.8, diesel: 4.3  },
+  { name: 'Renault Clio',      petrol: 6.0, diesel: 4.5  },
+  { name: 'Volkswagen Tiguan', petrol: 7.8, diesel: 5.8  },
+  { name: 'Volkswagen Polo',   petrol: 5.8, diesel: 4.5  },
+  { name: 'Skoda Octavia',     petrol: 6.3, diesel: 4.9  },
+  { name: 'Dacia Duster',      petrol: 7.5, diesel: 5.5  },
+  { name: 'Ford Puma',         petrol: 6.2, diesel: null  },
+  { name: 'Citroën C3',        petrol: 5.6, diesel: 4.3  },
+  { name: 'Opel Astra',        petrol: 6.5, diesel: 4.9  },
+  { name: 'SEAT Ibiza',        petrol: 5.8, diesel: 4.4  },
+  { name: 'Peugeot 3008',      petrol: 7.2, diesel: 5.3  },
+  { name: 'Hyundai Tucson',    petrol: 7.5, diesel: 5.5  },
+  { name: 'Kia Sportage',      petrol: 7.5, diesel: 5.5  },
+  { name: 'Renault Megane',    petrol: 6.8, diesel: 4.9  },
+  { name: 'BMW 3 Series',      petrol: 7.2, diesel: 5.5  },
+  { name: 'Mercedes C-Class',  petrol: 7.5, diesel: 5.6  },
+  { name: 'Ford Focus',        petrol: 6.6, diesel: 4.8  },
 ];
 
-// ── Top 20 EV models in Europe (real-world consumption) ──────────────────────
+// ── Top 20 EV models in Europe – ordered by sales volume ─────────────────────
 const EV_MODELS = [
-  { name: 'Tesla Model Y',          conso: 16 },
-  { name: 'Tesla Model 3',          conso: 14 },
-  { name: 'Volkswagen ID.4',        conso: 18 },
-  { name: 'Volkswagen ID.3',        conso: 15 },
-  { name: 'Renault Mégane E-Tech',  conso: 16 },
-  { name: 'Peugeot e-208',          conso: 14 },
-  { name: 'Fiat 500e',              conso: 13 },
-  { name: 'Hyundai Ioniq 5',        conso: 18 },
-  { name: 'Kia EV6',                conso: 17 },
-  { name: 'Skoda Enyaq iV',         conso: 17 },
-  { name: 'MG4',                    conso: 15 },
-  { name: 'Audi Q4 e-tron',         conso: 19 },
-  { name: 'BMW iX3',                conso: 19 },
-  { name: 'Hyundai Kona Electric',  conso: 14 },
-  { name: 'Kia Niro EV',            conso: 15 },
-  { name: 'Opel Mokka-e',           conso: 14 },
-  { name: 'BYD Atto 3',             conso: 20 },
-  { name: 'Volvo EX40',             conso: 19 },
-  { name: 'Mercedes EQA',           conso: 18 },
-  { name: 'Jeep Avenger Electric',  conso: 15 },
+  { name: 'Tesla Model Y',         conso: 16 },
+  { name: 'Volkswagen ID.4',       conso: 18 },
+  { name: 'Volvo EX30',            conso: 15 },
+  { name: 'BMW iX1',               conso: 17 },
+  { name: 'Renault 5 E-Tech',      conso: 12 },
+  { name: 'Tesla Model 3',         conso: 14 },
+  { name: 'Skoda Enyaq iV',        conso: 17 },
+  { name: 'Volkswagen ID.3',       conso: 15 },
+  { name: 'Audi Q4 e-tron',        conso: 19 },
+  { name: 'Kia EV6',               conso: 17 },
+  { name: 'Hyundai Ioniq 5',       conso: 18 },
+  { name: 'Peugeot e-208',         conso: 14 },
+  { name: 'MG4',                   conso: 15 },
+  { name: 'BYD Atto 3',            conso: 20 },
+  { name: 'Mercedes EQA',          conso: 18 },
+  { name: 'Fiat 500e',             conso: 13 },
+  { name: 'Renault Mégane E-Tech', conso: 16 },
+  { name: 'Hyundai Kona Electric', conso: 14 },
+  { name: 'BMW iX3',               conso: 19 },
+  { name: 'Kia Niro EV',           conso: 15 },
 ];
 
 // ── Translations ──────────────────────────────────────────────────────────────
 const STRINGS = {
   en: {
     locale: 'en-GB', decimal: '.',
-    pageTitle:    'EV Savings Calculator – ICE vs Electric',
-    cardParams:   'Simulator Parameters',
-    fuelPetrol:   'Petrol', fuelDiesel: 'Diesel',
-    secThermal:   'ICE Vehicle', secEv: 'Electric Vehicle',
-    secUsage:     'Usage', secCo2: 'CO₂ Footprint',
-    sepAchat:     'Purchase Price',
-    secAchatTh:   'ICE Vehicle', secAchatEv: 'Electric Vehicle',
-    vehicleModelTh: 'Vehicle model',
-    consoPetrol:  'Petrol consumption', consoDiesel: 'Diesel consumption',
-    prixPetrol:   'Petrol price', prixDiesel: 'Diesel price',
-    achatTh: 'Purchase price',
-    vehicleModel: 'Vehicle model',
-    customOption: '— Custom (manual entry) —',
-    petrolOnly:   '(petrol only)',
-    consoEv:      'Consumption',
-    pctHome:      'Home charging share', tarifHome: 'Home rate',
-    tarifDriveco: 'DRIVECO rate (public charging)',
-    achatEv: 'Purchase price',
-    km: 'Annual mileage', yearsDet: 'Ownership period', co2mix: 'Electricity mix',
-    co2hint: '🇫🇷 France: ~52 g/kWh<br>🇪🇺 EU average: ~250 g/kWh<br>🇩🇪 Germany: ~380 g/kWh',
-    cardResults:  (y) => `Results – ${y} simulation`,
-    lblTcoTh:     'Total ICE cost', lblSavings: 'Net savings with EV', lblTcoEv: 'Total EV cost',
-    unitOver:     (y) => `over ${y}`,
-    lblCo2:       (y) => `kg of CO₂ saved over ${y}`,
-    lblEnergy:    'in energy savings per year',
+    pageTitle:      'EV Savings Calculator – ICE vs Electric',
+    cardParams:     'Simulator Parameters',
+    fuelPetrol:     'Petrol', fuelDiesel: 'Diesel',
+    secThermal:     'ICE Vehicle', secEv: 'Electric Vehicle',
+    secCharging:    'Charging', secCo2: 'CO₂ & Duration',
+    sepAchat:       'Purchase Price',
+    secAchatTh:     'ICE Vehicle', secAchatEv: 'Electric Vehicle',
+    vehicleModelTh: 'Vehicle model', vehicleModel: 'Vehicle model',
+    customOption:   '— Custom (manual entry) —',
+    petrolOnly:     '(petrol only)',
+    consoEv:        'Consumption',
+    consoPetrol:    'Consumption', consoDiesel: 'Consumption',
+    prixPetrol:     'Petrol price', prixDiesel: 'Diesel price',
+    achatTh: 'Purchase price', achatEv: 'Purchase price',
+    km: 'Annual mileage',
+    pctHome:        'Home charging share', tarifHome: 'Home rate',
+    tarifDriveco:   'DRIVECO rate (public)',
+    yearsDet:       'Ownership period', co2mix: 'Electricity mix',
+    advancedToggle: '⚙️ Advanced settings',
+    co2hint: '🇫🇷 France: ~52 g/kWh<br>🇪🇺 EU avg: ~250 g/kWh<br>🇩🇪 Germany: ~380 g/kWh',
+    cardResults:    (y) => `Results – ${y} simulation`,
+    lblTcoTh:       'Total ICE cost', lblSavings: 'Net savings with EV', lblTcoEv: 'Total EV cost',
+    unitOver:       (y) => `over ${y}`,
+    lblCo2:         (y) => `kg of CO₂ saved over ${y}`,
+    lblEnergy:      'in energy savings per year',
     thPoste: 'Item', thThermal: 'ICE', thEv: 'Electric (EV)', thAdvantage: 'EV advantage',
     tdAchat:  'Purchase price',
     tdEnergy: (y) => `Energy – ${y}`,
@@ -743,7 +813,7 @@ const STRINGS = {
     beMain:       (lbl) => `Break-even reached ${lbl}`,
     beSub:        'From that point, every kilometre driven generates additional savings.',
     yearsLabel:   (n) => n > 1 ? `${n} years` : `${n} year`,
-    yearUnit:     (y, m) => {
+    yearUnit: (y, m) => {
       const yp = y > 0 ? `${y} year${y > 1 ? 's' : ''}` : '';
       const mp = m > 0 ? `${m} month${m > 1 ? 's' : ''}` : '';
       return [yp, mp].filter(Boolean).join(' and ');
@@ -756,31 +826,31 @@ const STRINGS = {
   },
   fr: {
     locale: 'fr-FR', decimal: ',',
-    pageTitle:    "Simulateur d'économies – Thermique vs Électrique",
-    cardParams:   'Paramètres du simulateur',
-    fuelPetrol:   'Essence', fuelDiesel: 'Diesel',
-    secThermal:   'Véhicule thermique', secEv: 'Véhicule électrique',
-    secUsage:     'Usage', secCo2: 'Empreinte CO₂',
-    sepAchat:     "Prix d'achat",
-    secAchatTh:   'Véhicule thermique', secAchatEv: 'Véhicule électrique',
-    vehicleModelTh: 'Modèle de véhicule',
-    consoPetrol:  'Consommation essence', consoDiesel: 'Consommation diesel',
-    prixPetrol:   'Prix essence', prixDiesel: 'Prix diesel',
-    achatTh: "Prix d'achat",
-    vehicleModel: 'Modèle de véhicule',
-    customOption: '— Personnalisé (saisie libre) —',
-    petrolOnly:   '(essence uniquement)',
-    consoEv:      'Consommation',
-    pctHome:      'Recharge à domicile', tarifHome: 'Tarif domicile',
-    tarifDriveco: 'Tarif DRIVECO (recharge publique)',
-    achatEv: "Prix d'achat",
-    km: 'Distance annuelle', yearsDet: 'Durée de détention', co2mix: 'Mix électrique',
-    co2hint: '🇫🇷 France : ~52 g/kWh<br>🇪🇺 Moyenne Europe : ~250 g/kWh<br>🇩🇪 Allemagne : ~380 g/kWh',
-    cardResults:  (y) => `Résultats – simulation sur ${y}`,
-    lblTcoTh:     'Coût total thermique', lblSavings: 'Économies nettes avec le VE', lblTcoEv: 'Coût total VE',
-    unitOver:     (y) => `sur ${y}`,
-    lblCo2:       (y) => `kg de CO₂ économisés sur ${y}`,
-    lblEnergy:    "d'économies sur l'énergie par an",
+    pageTitle:      "Simulateur d'économies – Thermique vs Électrique",
+    cardParams:     'Paramètres du simulateur',
+    fuelPetrol:     'Essence', fuelDiesel: 'Diesel',
+    secThermal:     'Véhicule thermique', secEv: 'Véhicule électrique',
+    secCharging:    'Recharge', secCo2: 'CO₂ & Durée',
+    sepAchat:       "Prix d'achat",
+    secAchatTh:     'Véhicule thermique', secAchatEv: 'Véhicule électrique',
+    vehicleModelTh: 'Modèle de véhicule', vehicleModel: 'Modèle de véhicule',
+    customOption:   '— Personnalisé (saisie libre) —',
+    petrolOnly:     '(essence uniquement)',
+    consoEv:        'Consommation',
+    consoPetrol:    'Consommation', consoDiesel: 'Consommation',
+    prixPetrol:     'Prix essence', prixDiesel: 'Prix diesel',
+    achatTh: "Prix d'achat", achatEv: "Prix d'achat",
+    km: 'Distance annuelle',
+    pctHome:        'Recharge à domicile', tarifHome: 'Tarif domicile',
+    tarifDriveco:   'Tarif DRIVECO (public)',
+    yearsDet:       'Durée de détention', co2mix: 'Mix électrique',
+    advancedToggle: '⚙️ Paramètres avancés',
+    co2hint: '🇫🇷 France : ~52 g/kWh<br>🇪🇺 Moy. Europe : ~250 g/kWh<br>🇩🇪 Allemagne : ~380 g/kWh',
+    cardResults:    (y) => `Résultats – simulation sur ${y}`,
+    lblTcoTh:       'Coût total thermique', lblSavings: 'Économies nettes avec le VE', lblTcoEv: 'Coût total VE',
+    unitOver:       (y) => `sur ${y}`,
+    lblCo2:         (y) => `kg de CO₂ économisés sur ${y}`,
+    lblEnergy:      "d'économies sur l'énergie par an",
     thPoste: 'Poste', thThermal: 'Thermique', thEv: 'Électrique (VE)', thAdvantage: 'Avantage VE',
     tdAchat:  "Prix d'achat",
     tdEnergy: (y) => `Énergie – ${y}`,
@@ -790,11 +860,11 @@ const STRINGS = {
     beInstant:    "Rentable dès l'achat !",
     beInstantSub: "Le VE est moins cher à l'achat et coûte moins à l'usage.",
     beTooLong:    'Rentabilité > 20 ans avec ces paramètres',
-    beTooLongSub: "Ajustez le prix d'achat ou la distance annuelle pour améliorer ce résultat.",
+    beTooLongSub: "Ajustez le prix d'achat ou la distance annuelle.",
     beMain:       (lbl) => `Rentabilité atteinte ${lbl}`,
     beSub:        'À partir de ce moment, chaque km génère des économies supplémentaires.',
     yearsLabel:   (n) => n > 1 ? `${n} ans` : `${n} an`,
-    yearUnit:     (y, m) => {
+    yearUnit: (y, m) => {
       const yp = y > 0 ? `${y} an${y > 1 ? 's' : ''}` : '';
       const mp = m > 0 ? `${m} mois` : '';
       return [yp, mp].filter(Boolean).join(' et ');
@@ -803,14 +873,14 @@ const STRINGS = {
     chartYear: (n) => `Année ${n}`,
     unitPerYear: '/an', unitKmYear: 'km/an',
     chartTh: 'Thermique (TCO cumulé)', chartEv: 'Électrique – VE (TCO cumulé)',
-    note: "Estimation basée sur les paramètres renseignés. Hors assurance, dépréciation, entretien et aides régionales éventuelles. Recharge publique calculée sur la base des tarifs DRIVECO AC.",
+    note: "Estimation basée sur les paramètres renseignés. Hors assurance, dépréciation, entretien et aides régionales. Recharge publique calculée sur la base des tarifs DRIVECO AC.",
   },
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let lang = 'en', fuelType = 'petrol', chart = null;
-let customConso = 17;      // EV custom consumption
-let selectedThModel = 0;  // ICE model index (0-19), -1 = custom
+let customConso   = 17;  // EV custom kWh/100km
+let selectedThModel = 0; // ICE model index, -1 = custom
 
 const FUEL_DEFAULTS = {
   petrol: { prix: 1.85, co2factor: 2370 },
@@ -856,7 +926,7 @@ function buildVehicleSelectTh() {
   sel.appendChild(opt0);
 
   ICE_MODELS.forEach((m, i) => {
-    const conso = fuelType === 'petrol' ? m.petrol : (m.diesel ?? m.petrol);
+    const conso  = fuelType === 'petrol' ? m.petrol : (m.diesel ?? m.petrol);
     const suffix = (fuelType === 'diesel' && m.diesel === null) ? ' ' + T().petrolOnly : '';
     const o = document.createElement('option');
     o.value = String(i);
@@ -886,7 +956,7 @@ function onCustomConsoTh() {
 
 // ── EV vehicle selector ───────────────────────────────────────────────────────
 function buildVehicleSelect() {
-  const sel = el('vehicle-select');
+  const sel  = el('vehicle-select');
   const prev = sel.value;
   sel.innerHTML = '';
 
@@ -940,7 +1010,7 @@ function applyLang() {
   txt('h-fuel-diesel',      s.fuelDiesel);
   txt('h-sec-thermal',      s.secThermal);
   txt('h-sec-ev',           s.secEv);
-  txt('h-sec-usage',        s.secUsage);
+  txt('h-sec-charging',     s.secCharging);
   txt('h-sec-co2',          s.secCo2);
   txt('h-sep-achat',        s.sepAchat);
   txt('h-sec-achat-th',     s.secAchatTh);
@@ -956,6 +1026,7 @@ function applyLang() {
   txt('h-km',               s.km);
   txt('h-years',            s.yearsDet);
   txt('h-co2-mix',          s.co2mix);
+  txt('h-advanced-toggle',  s.advancedToggle);
   htm('h-co2-hint',         s.co2hint);
   txt('h-lbl-tco-th',       s.lblTcoTh);
   txt('h-lbl-savings',      s.lblSavings);
@@ -1004,10 +1075,10 @@ function update() {
   // Slider labels
   txt('val-conso-th',      fmtDec(conso_th, 1) + ' L/100km');
   txt('val-prix-carb',     fmtDec(prix_carb, 2) + ' €/L');
+  txt('val-km',            Math.round(km).toLocaleString(s.locale) + ' ' + s.unitKmYear);
   txt('val-pct-home',      Math.round(r('pct-home')) + ' %');
   txt('val-tarif-home',    fmtDec(tarif_home, 2) + ' €/kWh');
   txt('val-tarif-driveco', fmtDec(tarif_drv,  2) + ' €/kWh');
-  txt('val-km',            Math.round(km).toLocaleString(s.locale) + ' ' + s.unitKmYear);
   txt('val-years',         yearsLbl);
   txt('val-co2-mix',       co2_mix + ' gCO₂/kWh');
   el('conso-badge-th').textContent = '⛽ ' + fmtDec(conso_th, 1) + ' L/100km';
@@ -1068,15 +1139,15 @@ function update() {
 
   // Table
   const sc = (v) => `<span class="${v >= 0 ? 'c-save' : 'c-lose'}">${fmtSign(v)}</span>`;
-  txt('td-achat-th',   fmtEur(prix_th));
-  txt('td-achat-ev',   fmtEur(prix_ev));
-  htm('td-achat-diff', sc(prix_th - prix_ev));
-  txt('td-energy-th',  fmtEur(annual_energy_th * years));
-  txt('td-energy-ev',  fmtEur(annual_energy_ev * years));
+  txt('td-achat-th',    fmtEur(prix_th));
+  txt('td-achat-ev',    fmtEur(prix_ev));
+  htm('td-achat-diff',  sc(prix_th - prix_ev));
+  txt('td-energy-th',   fmtEur(annual_energy_th * years));
+  txt('td-energy-ev',   fmtEur(annual_energy_ev * years));
   htm('td-energy-diff', sc((annual_energy_th - annual_energy_ev) * years));
-  txt('td-total-th',   fmtEur(tco_th));
-  txt('td-total-ev',   fmtEur(tco_ev));
-  htm('td-total-diff', sc(savings));
+  txt('td-total-th',    fmtEur(tco_th));
+  txt('td-total-ev',    fmtEur(tco_ev));
+  htm('td-total-diff',  sc(savings));
 
   // Chart
   const maxY = Math.max(years, 10);
@@ -1116,6 +1187,11 @@ function update() {
       },
     });
   }
+}
+
+// ── Embed mode ────────────────────────────────────────────────────────────────
+if (new URLSearchParams(window.location.search).has('embed')) {
+  document.body.classList.add('embed');
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
