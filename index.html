@@ -67,7 +67,7 @@
     /* ── Language toggle ── */
     .lang-toggle {
       display: inline-flex;
-      background: rgba(255,255,255,0.1);
+      background: white;
       border-radius: 7px;
       padding: 3px;
       gap: 2px;
@@ -82,12 +82,12 @@
       font-size: 1.2rem;
       line-height: 1;
       cursor: pointer;
-      opacity: 0.45;
+      opacity: 0.5;
       transition: background 0.18s, opacity 0.18s;
     }
 
     .lang-btn.active {
-      background: rgba(255,255,255,0.15);
+      background: var(--teal-bg);
       opacity: 1;
     }
 
@@ -522,9 +522,9 @@
         <div class="param-row">
           <div class="param-label">
             <span class="param-name" id="lbl-prix-carb">Petrol price</span>
-            <span class="param-val"  id="val-prix-carb">1.85 €/L</span>
+            <span class="param-val"  id="val-prix-carb">1.99 €/L</span>
           </div>
-          <input type="range" id="prix-carb" min="1.20" max="3.00" step="0.01" value="1.85" oninput="update()">
+          <input type="range" id="prix-carb" min="1.20" max="3.00" step="0.01" value="1.99" oninput="update()">
         </div>
       </div>
 
@@ -736,112 +736,112 @@
 </main>
 
 <script>
-// ── Top 50 ICE models in Europe – ordered by sales volume ────────────────────
+// ── Top 50 ICE models in Europe – sorted alphabetically by brand ─────────────
 const ICE_MODELS = [
-  { name: 'Dacia Sandero',          petrol: 6.5, diesel: 4.8  },
-  { name: 'Toyota Yaris',           petrol: 5.5, diesel: null  },
-  { name: 'Volkswagen Golf',        petrol: 6.5, diesel: 4.8  },
-  { name: 'Peugeot 208',           petrol: 5.8, diesel: 4.3  },
-  { name: 'Renault Clio',          petrol: 6.0, diesel: 4.5  },
-  { name: 'Volkswagen Tiguan',     petrol: 7.8, diesel: 5.8  },
-  { name: 'Volkswagen Polo',       petrol: 5.8, diesel: 4.5  },
-  { name: 'Skoda Octavia',         petrol: 6.3, diesel: 4.9  },
-  { name: 'Dacia Duster',          petrol: 7.5, diesel: 5.5  },
-  { name: 'Ford Puma',             petrol: 6.2, diesel: null  },
-  { name: 'Citroën C3',            petrol: 5.6, diesel: 4.3  },
-  { name: 'Opel Astra',            petrol: 6.5, diesel: 4.9  },
-  { name: 'SEAT Ibiza',            petrol: 5.8, diesel: 4.4  },
-  { name: 'Peugeot 3008',          petrol: 7.2, diesel: 5.3  },
-  { name: 'Hyundai Tucson',        petrol: 7.5, diesel: 5.5  },
-  { name: 'Kia Sportage',          petrol: 7.5, diesel: 5.5  },
-  { name: 'Renault Megane',        petrol: 6.8, diesel: 4.9  },
-  { name: 'BMW 3 Series',          petrol: 7.2, diesel: 5.5  },
-  { name: 'Mercedes C-Class',      petrol: 7.5, diesel: 5.6  },
-  { name: 'Ford Focus',            petrol: 6.6, diesel: 4.8  },
-  { name: 'Toyota Corolla',        petrol: 5.0, diesel: null  },
-  { name: 'Skoda Fabia',           petrol: 5.5, diesel: 4.2  },
-  { name: 'Opel Corsa',            petrol: 5.8, diesel: 4.3  },
-  { name: 'SEAT Leon',             petrol: 6.3, diesel: 4.7  },
-  { name: 'Renault Captur',        petrol: 6.2, diesel: 4.8  },
-  { name: 'Peugeot 2008',          petrol: 6.0, diesel: 4.5  },
-  { name: 'Dacia Jogger',          petrol: 6.8, diesel: 5.2  },
-  { name: 'Volkswagen T-Roc',      petrol: 7.0, diesel: 5.2  },
-  { name: 'Toyota RAV4',           petrol: 6.0, diesel: null  },
-  { name: 'BMW 1 Series',          petrol: 6.5, diesel: 5.0  },
-  { name: 'Ford Kuga',             petrol: 7.2, diesel: 5.5  },
-  { name: 'Volkswagen Passat',     petrol: 7.0, diesel: 5.2  },
-  { name: 'Skoda Kamiq',           petrol: 6.2, diesel: 4.8  },
-  { name: 'Renault Austral',       petrol: 6.5, diesel: 5.0  },
-  { name: 'Kia Ceed',              petrol: 6.3, diesel: 4.8  },
-  { name: 'Hyundai i20',           petrol: 5.5, diesel: 4.3  },
-  { name: 'Nissan Qashqai',        petrol: 7.0, diesel: 5.5  },
-  { name: 'Mercedes A-Class',      petrol: 6.8, diesel: 5.2  },
-  { name: 'BMW X1',                petrol: 7.0, diesel: 5.5  },
-  { name: 'Volkswagen T-Cross',    petrol: 6.5, diesel: null  },
-  { name: 'Toyota C-HR',           petrol: 5.2, diesel: null  },
-  { name: 'Fiat Panda',            petrol: 5.5, diesel: 4.2  },
-  { name: 'Opel Mokka',            petrol: 6.2, diesel: 4.8  },
-  { name: 'Honda HR-V',            petrol: 5.5, diesel: null  },
-  { name: 'Suzuki Vitara',         petrol: 6.2, diesel: null  },
-  { name: 'Jeep Renegade',         petrol: 7.0, diesel: 5.5  },
-  { name: 'Alfa Romeo Tonale',     petrol: 6.8, diesel: 5.2  },
-  { name: 'Citroën C5 Aircross',   petrol: 7.2, diesel: 5.5  },
-  { name: 'Peugeot 5008',          petrol: 7.5, diesel: 5.8  },
-  { name: 'Audi A3',               petrol: 6.5, diesel: 5.0  },
+  { name: 'Alfa Romeo Tonale',     petrol: 6.8, diesel: 5.2  }, //  0
+  { name: 'Audi A3',               petrol: 6.5, diesel: 5.0  }, //  1
+  { name: 'BMW 1 Series',          petrol: 6.5, diesel: 5.0  }, //  2
+  { name: 'BMW 3 Series',          petrol: 7.2, diesel: 5.5  }, //  3
+  { name: 'BMW X1',                petrol: 7.0, diesel: 5.5  }, //  4
+  { name: 'Citroën C3',            petrol: 5.6, diesel: 4.3  }, //  5
+  { name: 'Citroën C5 Aircross',   petrol: 7.2, diesel: 5.5  }, //  6
+  { name: 'Dacia Duster',          petrol: 7.5, diesel: 5.5  }, //  7
+  { name: 'Dacia Jogger',          petrol: 6.8, diesel: 5.2  }, //  8
+  { name: 'Dacia Sandero',         petrol: 6.5, diesel: 4.8  }, //  9
+  { name: 'Fiat Panda',            petrol: 5.5, diesel: 4.2  }, // 10
+  { name: 'Ford Focus',            petrol: 6.6, diesel: 4.8  }, // 11
+  { name: 'Ford Kuga',             petrol: 7.2, diesel: 5.5  }, // 12
+  { name: 'Ford Puma',             petrol: 6.2, diesel: null  }, // 13
+  { name: 'Honda HR-V',            petrol: 5.5, diesel: null  }, // 14
+  { name: 'Hyundai i20',           petrol: 5.5, diesel: 4.3  }, // 15
+  { name: 'Hyundai Tucson',        petrol: 7.5, diesel: 5.5  }, // 16
+  { name: 'Jeep Renegade',         petrol: 7.0, diesel: 5.5  }, // 17
+  { name: 'Kia Ceed',              petrol: 6.3, diesel: 4.8  }, // 18
+  { name: 'Kia Sportage',          petrol: 7.5, diesel: 5.5  }, // 19
+  { name: 'Mercedes A-Class',      petrol: 6.8, diesel: 5.2  }, // 20
+  { name: 'Mercedes C-Class',      petrol: 7.5, diesel: 5.6  }, // 21
+  { name: 'Nissan Qashqai',        petrol: 7.0, diesel: 5.5  }, // 22
+  { name: 'Opel Astra',            petrol: 6.5, diesel: 4.9  }, // 23
+  { name: 'Opel Corsa',            petrol: 5.8, diesel: 4.3  }, // 24
+  { name: 'Opel Mokka',            petrol: 6.2, diesel: 4.8  }, // 25
+  { name: 'Peugeot 208',           petrol: 5.8, diesel: 4.3  }, // 26
+  { name: 'Peugeot 2008',          petrol: 6.0, diesel: 4.5  }, // 27
+  { name: 'Peugeot 3008',          petrol: 7.2, diesel: 5.3  }, // 28
+  { name: 'Peugeot 5008',          petrol: 7.5, diesel: 5.8  }, // 29
+  { name: 'Renault Austral',       petrol: 6.5, diesel: 5.0  }, // 30
+  { name: 'Renault Captur',        petrol: 6.2, diesel: 4.8  }, // 31
+  { name: 'Renault Clio',          petrol: 6.0, diesel: 4.5  }, // 32
+  { name: 'Renault Megane',        petrol: 6.8, diesel: 4.9  }, // 33
+  { name: 'SEAT Ibiza',            petrol: 5.8, diesel: 4.4  }, // 34
+  { name: 'SEAT Leon',             petrol: 6.3, diesel: 4.7  }, // 35
+  { name: 'Skoda Fabia',           petrol: 5.5, diesel: 4.2  }, // 36
+  { name: 'Skoda Kamiq',           petrol: 6.2, diesel: 4.8  }, // 37
+  { name: 'Skoda Octavia',         petrol: 6.3, diesel: 4.9  }, // 38
+  { name: 'Suzuki Vitara',         petrol: 6.2, diesel: null  }, // 39
+  { name: 'Toyota C-HR',           petrol: 5.2, diesel: null  }, // 40
+  { name: 'Toyota Corolla',        petrol: 5.0, diesel: null  }, // 41
+  { name: 'Toyota RAV4',           petrol: 6.0, diesel: null  }, // 42
+  { name: 'Toyota Yaris',          petrol: 5.5, diesel: null  }, // 43
+  { name: 'Volkswagen Golf',       petrol: 6.5, diesel: 4.8  }, // 44 ← default
+  { name: 'Volkswagen Passat',     petrol: 7.0, diesel: 5.2  }, // 45
+  { name: 'Volkswagen Polo',       petrol: 5.8, diesel: 4.5  }, // 46
+  { name: 'Volkswagen T-Cross',    petrol: 6.5, diesel: null  }, // 47
+  { name: 'Volkswagen T-Roc',      petrol: 7.0, diesel: 5.2  }, // 48
+  { name: 'Volkswagen Tiguan',     petrol: 7.8, diesel: 5.8  }, // 49
 ];
 
-// ── Top 50 EV models in Europe – ordered by sales volume ─────────────────────
+// ── Top 50 EV models in Europe – sorted alphabetically by brand ──────────────
 const EV_MODELS = [
-  { name: 'Tesla Model Y',          conso: 16 },
-  { name: 'Volkswagen ID.4',        conso: 18 },
-  { name: 'Volvo EX30',             conso: 15 },
-  { name: 'BMW iX1',                conso: 17 },
-  { name: 'Renault 5 E-Tech',       conso: 12 },
-  { name: 'Tesla Model 3',          conso: 14 },
-  { name: 'Skoda Enyaq iV',         conso: 17 },
-  { name: 'Volkswagen ID.3',        conso: 15 },
-  { name: 'Audi Q4 e-tron',         conso: 19 },
-  { name: 'Kia EV6',                conso: 17 },
-  { name: 'Hyundai Ioniq 5',        conso: 18 },
-  { name: 'Peugeot e-208',          conso: 14 },
-  { name: 'MG4',                    conso: 15 },
-  { name: 'BYD Atto 3',             conso: 20 },
-  { name: 'Mercedes EQA',           conso: 18 },
-  { name: 'Fiat 500e',              conso: 13 },
-  { name: 'Renault Mégane E-Tech',  conso: 16 },
-  { name: 'Hyundai Kona Electric',  conso: 14 },
-  { name: 'BMW iX3',                conso: 19 },
-  { name: 'Kia Niro EV',            conso: 15 },
-  { name: 'Volvo EX40',             conso: 19 },
-  { name: 'Peugeot e-2008',         conso: 16 },
-  { name: 'Jeep Avenger Electric',  conso: 15 },
-  { name: 'Opel Mokka-e',           conso: 14 },
-  { name: 'Cupra Born',             conso: 16 },
-  { name: 'Volkswagen ID.5',        conso: 18 },
-  { name: 'BMW i4',                 conso: 18 },
-  { name: 'Mercedes EQB',           conso: 19 },
-  { name: 'Hyundai Ioniq 6',        conso: 14 },
-  { name: 'Nissan Leaf',            conso: 15 },
-  { name: 'BYD Seal',               conso: 16 },
-  { name: 'Opel Astra Electric',    conso: 15 },
-  { name: 'Toyota bZ4X',            conso: 18 },
-  { name: 'Smart #1',               conso: 16 },
-  { name: 'Nissan Ariya',           conso: 18 },
-  { name: 'BMW i5',                 conso: 18 },
-  { name: 'Volkswagen ID.7',        conso: 17 },
-  { name: 'Cupra Tavascan',         conso: 18 },
-  { name: 'Polestar 2',             conso: 18 },
-  { name: 'Ford Mustang Mach-E',    conso: 21 },
-  { name: 'Dacia Spring',           conso: 11 },
-  { name: 'MINI Electric',          conso: 13 },
-  { name: 'Kia EV9',                conso: 22 },
-  { name: 'BMW iX',                 conso: 21 },
-  { name: 'Audi Q8 e-tron',         conso: 23 },
-  { name: 'Mercedes EQE',           conso: 18 },
-  { name: 'Leapmotor C10',          conso: 15 },
-  { name: 'Tesla Model X',          conso: 21 },
-  { name: 'Renault Zoe',            conso: 16 },
-  { name: 'Skoda Enyaq Coupé',      conso: 17 },
+  { name: 'Audi Q4 e-tron',         conso: 19 }, //  0
+  { name: 'Audi Q8 e-tron',         conso: 23 }, //  1
+  { name: 'BMW i4',                  conso: 18 }, //  2
+  { name: 'BMW i5',                  conso: 18 }, //  3
+  { name: 'BMW iX',                  conso: 21 }, //  4
+  { name: 'BMW iX1',                 conso: 17 }, //  5
+  { name: 'BMW iX3',                 conso: 19 }, //  6
+  { name: 'BYD Atto 3',             conso: 20 }, //  7
+  { name: 'BYD Seal',               conso: 16 }, //  8
+  { name: 'Cupra Born',             conso: 16 }, //  9
+  { name: 'Cupra Tavascan',         conso: 18 }, // 10
+  { name: 'Dacia Spring',           conso: 11 }, // 11
+  { name: 'Fiat 500e',              conso: 13 }, // 12
+  { name: 'Ford Mustang Mach-E',    conso: 21 }, // 13
+  { name: 'Hyundai Ioniq 5',        conso: 18 }, // 14
+  { name: 'Hyundai Ioniq 6',        conso: 14 }, // 15
+  { name: 'Hyundai Kona Electric',  conso: 14 }, // 16
+  { name: 'Jeep Avenger Electric',  conso: 15 }, // 17
+  { name: 'Kia EV6',                conso: 17 }, // 18
+  { name: 'Kia EV9',                conso: 22 }, // 19
+  { name: 'Kia Niro EV',            conso: 15 }, // 20
+  { name: 'Leapmotor C10',          conso: 15 }, // 21
+  { name: 'Mercedes EQA',           conso: 18 }, // 22
+  { name: 'Mercedes EQB',           conso: 19 }, // 23
+  { name: 'Mercedes EQE',           conso: 18 }, // 24
+  { name: 'MG4',                    conso: 15 }, // 25
+  { name: 'MINI Electric',          conso: 13 }, // 26
+  { name: 'Nissan Ariya',           conso: 18 }, // 27
+  { name: 'Nissan Leaf',            conso: 15 }, // 28
+  { name: 'Opel Astra Electric',    conso: 15 }, // 29
+  { name: 'Opel Mokka-e',           conso: 14 }, // 30
+  { name: 'Peugeot e-208',          conso: 14 }, // 31
+  { name: 'Peugeot e-2008',         conso: 16 }, // 32
+  { name: 'Polestar 2',             conso: 18 }, // 33
+  { name: 'Renault 5 E-Tech',       conso: 12 }, // 34
+  { name: 'Renault Mégane E-Tech',  conso: 16 }, // 35
+  { name: 'Renault Zoe',            conso: 16 }, // 36
+  { name: 'Skoda Enyaq Coupé',      conso: 17 }, // 37
+  { name: 'Skoda Enyaq iV',         conso: 17 }, // 38
+  { name: 'Smart #1',               conso: 16 }, // 39
+  { name: 'Tesla Model 3',          conso: 14 }, // 40
+  { name: 'Tesla Model X',          conso: 21 }, // 41
+  { name: 'Tesla Model Y',          conso: 16 }, // 42 ← default
+  { name: 'Toyota bZ4X',            conso: 18 }, // 43
+  { name: 'Volkswagen ID.3',        conso: 15 }, // 44
+  { name: 'Volkswagen ID.4',        conso: 18 }, // 45
+  { name: 'Volkswagen ID.5',        conso: 18 }, // 46
+  { name: 'Volkswagen ID.7',        conso: 17 }, // 47
+  { name: 'Volvo EX30',             conso: 15 }, // 48
+  { name: 'Volvo EX40',             conso: 19 }, // 49
 ];
 
 // ── Translations ──────────────────────────────────────────────────────────────
@@ -954,11 +954,12 @@ const STRINGS = {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let lang = 'en', fuelType = 'petrol', chart = null;
-let customConso   = 17;  // EV custom kWh/100km
-let selectedThModel = 0; // ICE model index, -1 = custom
+let customConso     = 17; // EV custom kWh/100km
+let selectedThModel = 44; // ICE model index (VW Golf), -1 = custom
+let selectedEvModel = 42; // EV model index (Tesla Model Y), -1 = custom
 
 const FUEL_DEFAULTS = {
-  petrol: { prix: 1.85, co2factor: 2370 },
+  petrol: { prix: 1.99, co2factor: 2370 },
   diesel: { prix: 1.72, co2factor: 2650 },
 };
 
@@ -980,8 +981,8 @@ const fmtSign = (n) => {
 const fmtDec = (n, d) => n.toFixed(d).replace('.', T().decimal);
 
 const getConsoEv = () => {
-  const v = el('vehicle-select').value;
-  return v === 'custom' ? customConso : parseFloat(v);
+  if (selectedEvModel < 0) return customConso;
+  return EV_MODELS[selectedEvModel].conso;
 };
 
 const getConsoTh = () => {
@@ -1031,8 +1032,7 @@ function onCustomConsoTh() {
 
 // ── EV vehicle selector ───────────────────────────────────────────────────────
 function buildVehicleSelect() {
-  const sel  = el('vehicle-select');
-  const prev = sel.value;
+  const sel = el('vehicle-select');
   sel.innerHTML = '';
 
   const opt0 = document.createElement('option');
@@ -1040,23 +1040,23 @@ function buildVehicleSelect() {
   opt0.textContent = T().customOption;
   sel.appendChild(opt0);
 
-  EV_MODELS.forEach(m => {
+  EV_MODELS.forEach((m, i) => {
     const o = document.createElement('option');
-    o.value = m.conso;
+    o.value = String(i);
     o.textContent = `${m.name}  –  ${m.conso} kWh/100km`;
     sel.appendChild(o);
   });
 
-  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
-  else sel.value = String(EV_MODELS[0].conso);
+  sel.value = selectedEvModel < 0 ? 'custom' : String(selectedEvModel);
+  el('row-conso-custom').style.display = selectedEvModel < 0 ? 'block' : 'none';
+  el('conso-badge').textContent = '⚡ ' + fmtDec(getConsoEv(), 0) + ' kWh/100km';
 }
 
 function onVehicleChange() {
   const v = el('vehicle-select').value;
-  const isCustom = v === 'custom';
-  el('row-conso-custom').style.display = isCustom ? 'block' : 'none';
-  const conso = isCustom ? customConso : parseFloat(v);
-  el('conso-badge').textContent = '⚡ ' + fmtDec(conso, 0) + ' kWh/100km';
+  selectedEvModel = v === 'custom' ? -1 : parseInt(v);
+  el('row-conso-custom').style.display = selectedEvModel < 0 ? 'block' : 'none';
+  el('conso-badge').textContent = '⚡ ' + fmtDec(getConsoEv(), 0) + ' kWh/100km';
   update();
 }
 
@@ -1273,7 +1273,7 @@ if (new URLSearchParams(window.location.search).has('embed')) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildVehicleSelectTh();
 buildVehicleSelect();
-onVehicleChange();
+update();
 </script>
 </body>
 </html>
