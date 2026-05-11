@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Savings Calculator – DRIVECO</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy:      #00274a;
+      --teal:      #00bf8f;
+      --teal-dark: #009e77;
+      --teal-bg:   #e6f9f4;
+      --red:       #e05858;
+      --red-bg:    #fef2f2;
+      --gray-50:   #f5f7fa;
+      --gray-100:  #eef0f4;
+      --gray-200:  #d8dce6;
+      --gray-500:  #9ca3af;
+      --gray-600:  #6b7280;
+      --gray-900:  #111827;
+      --white:     #ffffff;
+      --radius:    10px;
+      --shadow:    0 1px 4px rgba(0,0,0,0.09);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      line-height: 1.5;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--navy);
+      padding: 1.1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo-wrap { display: flex; align-items: center; }
+    .logo-wrap svg { height: 32px; width: auto; }
+    .logo-wrap svg path { fill: #ffffff; }
+
+    .header-divider {
+      width: 2px; height: 28px;
+      background: var(--teal);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+
+    /* ── Language toggle ── */
+    .lang-toggle {
+      display: inline-flex;
+      background: rgba(255,255,255,0.1);
+      border-radius: 7px;
+      padding: 3px;
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      padding: 0.25rem 0.6rem;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+      opacity: 0.45;
+      transition: background 0.18s, opacity 0.18s;
+    }
+
+    .lang-btn.active {
+      background: rgba(255,255,255,0.15);
+      opacity: 1;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin-bottom: 1.4rem;
+    }
+
+    .section-sep {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gray-500);
+      margin: 1.5rem 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-sep::before, .section-sep::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    /* ── Fuel toggle ── */
+    .fuel-toggle {
+      display: inline-flex;
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 1.5rem;
+      gap: 2px;
+    }
+
+    .fuel-btn {
+      padding: 0.45rem 1.4rem;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--gray-600);
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .fuel-btn.active { background: var(--navy); color: white; }
+
+    /* ── Params grid ── */
+    .params-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .param-section {
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+      border: 1px solid var(--gray-200);
+    }
+
+    .section-header {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--navy);
+      margin-bottom: 1.1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ── Param rows ── */
+    .param-row { margin-bottom: 1rem; }
+    .param-row:last-child { margin-bottom: 0; }
+
+    .param-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .param-name { font-size: 0.82rem; color: var(--gray-600); }
+
+    .param-val {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+      background: var(--teal-bg);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--gray-200);
+      border-radius: 99px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--teal);
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px var(--teal);
+      cursor: pointer;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.45rem 0.7rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 7px;
+      font-size: 0.85rem;
+      color: var(--gray-900);
+      background: white;
+      margin-top: 0.25rem;
+      transition: border-color 0.15s;
+    }
+
+    input[type="number"]:focus { outline: none; border-color: var(--teal); }
+
+    /* ── Vehicle select ── */
+    .vehicle-select {
+      width: 100%;
+      padding: 0.5rem 2rem 0.5rem 0.7rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 7px;
+      font-size: 0.85rem;
+      color: var(--gray-900);
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 0.15s;
+    }
+
+    .vehicle-select:focus { outline: none; border-color: var(--teal); }
+
+    .conso-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: var(--teal-bg);
+      color: var(--navy);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+
+    /* ── Usage row ── */
+    .usage-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    /* ── Results ── */
+    .results-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .result-box {
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem;
+      text-align: center;
+      border: 1px solid var(--gray-200);
+    }
+
+    .result-box.highlight { background: var(--navy); border-color: var(--navy); }
+
+    .result-box .rlabel {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+      margin-bottom: 0.4rem;
+    }
+
+    .result-box.highlight .rlabel { color: rgba(255,255,255,0.6); }
+    .result-box .rvalue { font-size: 1.65rem; font-weight: 800; color: var(--navy); line-height: 1.1; }
+    .result-box.highlight .rvalue { color: var(--teal); }
+    .result-box .runit { font-size: 0.75rem; color: var(--gray-500); margin-top: 0.2rem; }
+    .result-box.highlight .runit { color: rgba(255,255,255,0.5); }
+
+    /* ── Breakeven ── */
+    .breakeven {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--teal-bg);
+      border-left: 4px solid var(--teal);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .breakeven.negative { background: var(--red-bg); border-left-color: var(--red); }
+    .breakeven .be-icon { font-size: 1.35rem; }
+    .breakeven .be-text strong { display: block; font-size: 0.92rem; color: var(--navy); }
+    .breakeven .be-text span   { font-size: 0.8rem; color: var(--gray-600); }
+
+    /* ── Metrics row ── */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: linear-gradient(135deg, var(--teal-bg) 0%, #f0faf7 100%);
+      border: 1px solid #a8e6d5;
+      border-radius: var(--radius);
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .metric-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .metric-value { font-size: 1.35rem; font-weight: 800; color: var(--teal-dark); }
+    .metric-label { font-size: 0.78rem; color: var(--gray-600); }
+
+    /* ── Breakdown table ── */
+    .breakdown {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .breakdown th {
+      padding: 0.55rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--gray-500);
+      background: var(--gray-100);
+    }
+
+    .breakdown th:not(:first-child) { text-align: right; }
+    .breakdown td { padding: 0.65rem 0.75rem; border-bottom: 1px solid var(--gray-100); color: var(--gray-600); }
+    .breakdown td:not(:first-child) { text-align: right; font-weight: 600; }
+    .breakdown tr.total td { font-weight: 700; color: var(--gray-900); background: var(--gray-50); }
+
+    .c-ev   { color: var(--teal-dark); }
+    .c-th   { color: var(--red); }
+    .c-save { color: var(--teal-dark); }
+    .c-lose { color: var(--red); }
+
+    .chart-wrap { position: relative; height: 310px; }
+
+    .note { font-size: 0.75rem; color: var(--gray-500); text-align: center; padding-top: 0.5rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 780px) {
+      .params-grid  { grid-template-columns: 1fr; }
+      .usage-row    { grid-template-columns: 1fr; }
+      .results-hero { grid-template-columns: 1fr 1fr; }
+      .metrics-row  { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      main  { padding: 1rem; }
+      .card { padding: 1.25rem; }
+      .results-hero { grid-template-columns: 1fr; }
+      header { padding: 1rem; gap: 0.75rem; }
+      header h1 { font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 841.89 336.43" aria-label="DRIVECO">
+      <path d="M734.63,101.18c-8.41-7.58-19.42-11.38-33.06-11.38s-24.61,3.8-32.94,11.38c-8.32,7.59-12.49,17.65-12.49,30.2v73.53c0,12.55,4.16,22.62,12.49,30.2,8.32,7.59,19.3,11.38,32.94,11.38s24.65-3.79,33.06-11.38c8.4-7.58,12.6-17.65,12.6-30.2v-73.53c0-12.55-4.2-22.61-12.6-30.2ZM720.31,203.15c0,5.67-1.76,10.26-5.3,13.76-3.53,3.51-7.74,5.26-13.46,5.26s-9.47-1.75-12.92-5.26c-3.45-3.5-5.17-8.09-5.17-13.76l-.41-68.81c0-5.67,2.13-10.25,5.58-13.76,3.44-3.5,7.2-5.26,12.92-5.26s9.93,1.75,13.46,5.26c3.53,3.51,5.3,8.09,5.3,13.76v68.81ZM315.83,243.19h27.98V93.21h-27.98v149.98ZM406.57,189.98l-22.14-96.77h-29.63l37.6,149.98h28.34l37.15-149.98h-29.4l-21.92,96.77ZM489.03,175.91h33.64v-25.28h-33.64v-31.11h50.14v-26.31h-61.49l-14.9,64.07-.52,85.91h78.85v-26.31h-52.07v-40.97ZM301.62,139.91c0-31.07-18.64-46.71-47.78-46.71h-50.59v149.98h27.68v-123.84h21.62c16.07,0,22.28,7.5,22.28,21s-7.07,20.78-20.78,20.78h-13.39v25.07h8.89l23.35,56.99h29.14l-25.71-62.35c14.57-6.86,25.28-19.93,25.28-40.92ZM148.06,93.06h-54.08v150.31h55.21c27.86,0,38.73-16.99,38.73-39.19v-74.21c0-22.2-12-36.92-39.86-36.92ZM160.24,201.24c0,8.61-2.72,18.35-15.63,18.35h-23.14v-101.5h23.14c12.91,0,15.63,7.47,15.63,16.08v67.07ZM629.99,100.86c-8.25-7.37-20.01-11.05-33.64-11.05s-25.12,3.69-33.29,11.05c-8.17,7.37-12.25,17.33-12.25,29.87v74.63c0,12.4,4.08,22.36,12.25,29.87,8.16,7.52,19.81,11.27,33.29,11.27s25.19-3.75,33.44-11.27c8.24-7.51,12.37-17.47,12.37-29.87v-13.51h-26.68v10.6c0,5.51-1.77,9.97-5.3,13.38-3.53,3.41-7.74,5.11-13.46,5.11s-9.47-1.7-12.92-5.11c-.08-.07-.14-.16-.21-.23-.04-.04-.08-.07-.11-.11-.2-.21-.38-.43-.57-.64-.12-.14-.24-.26-.36-.4-2.82-3.36-4.24-7.59-4.24-12.72v-54.55l-.08-14.02c0-2.62.49-5,1.36-7.14.02-.05.04-.09.06-.14.06-.14.12-.28.18-.42.86-2.08,2.06-3.93,3.65-5.55,3.45-3.5,7.41-5.26,13.13-5.26,1.45,0,2.8.11,4.07.34,3.79.63,6.84,2.23,9.5,4.8,3.53,3.41,5.3,7.87,5.3,13.38v15.5h26.68v-17.92c0-12.55-3.92-22.5-12.16-29.87Z"/>
+    </svg>
+  </div>
+  <div class="header-divider"></div>
+  <h1 id="h-page-title">EV Savings Calculator – ICE vs Electric</h1>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="lang-en" onclick="setLang('en')" title="English">🇪🇺</button>
+    <button class="lang-btn"        id="lang-fr" onclick="setLang('fr')" title="Français">🇫🇷</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══ PARAMETERS ═══ -->
+  <div class="card">
+    <div class="card-title" id="h-card-params">Simulator Parameters</div>
+
+    <div class="fuel-toggle">
+      <button class="fuel-btn active" id="btn-petrol" onclick="setFuel('petrol')">⛽ <span id="h-fuel-petrol">Petrol</span></button>
+      <button class="fuel-btn"        id="btn-diesel" onclick="setFuel('diesel')">🛢️ <span id="h-fuel-diesel">Diesel</span></button>
+    </div>
+
+    <div class="params-grid">
+
+      <!-- ICE -->
+      <div class="param-section">
+        <div class="section-header">🔥 <span id="h-sec-thermal">ICE Vehicle</span></div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="lbl-conso-th">Petrol consumption</span>
+            <span class="param-val"  id="val-conso-th">7.5 L/100km</span>
+          </div>
+          <input type="range" id="conso-th" min="3" max="20" step="0.5" value="7.5" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="lbl-prix-carb">Petrol price</span>
+            <span class="param-val"  id="val-prix-carb">1.85 €/L</span>
+          </div>
+          <input type="range" id="prix-carb" min="1.20" max="3.00" step="0.01" value="1.85" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-entretien-th">Annual maintenance</span>
+            <span class="param-val"  id="val-entretien-th">1,200 €/yr</span>
+          </div>
+          <input type="range" id="entretien-th" min="200" max="4000" step="50" value="1200" oninput="update()">
+        </div>
+      </div>
+
+      <!-- EV -->
+      <div class="param-section">
+        <div class="section-header">⚡ <span id="h-sec-ev">Electric Vehicle</span></div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-vehicle-model">Vehicle model</span>
+          </div>
+          <select class="vehicle-select" id="vehicle-select" onchange="onVehicleChange()"></select>
+          <div class="conso-badge" id="conso-badge">⚡ 16 kWh/100km</div>
+          <div id="row-conso-custom" style="display:none; margin-top:0.75rem;">
+            <div class="param-label">
+              <span class="param-name" id="h-conso-ev">Consumption</span>
+              <span class="param-val"  id="val-conso-ev">17 kWh/100km</span>
+            </div>
+            <input type="range" id="conso-ev" min="10" max="35" step="0.5" value="17" oninput="onCustomConso()">
+          </div>
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-pct-home">Home charging share</span>
+            <span class="param-val"  id="val-pct-home">70 %</span>
+          </div>
+          <input type="range" id="pct-home" min="0" max="100" step="5" value="70" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-tarif-home">Home rate</span>
+            <span class="param-val"  id="val-tarif-home">0.25 €/kWh</span>
+          </div>
+          <input type="range" id="tarif-home" min="0.10" max="0.55" step="0.01" value="0.25" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-tarif-driveco">DRIVECO rate (public charging)</span>
+            <span class="param-val"  id="val-tarif-driveco">0.40 €/kWh</span>
+          </div>
+          <input type="range" id="tarif-driveco" min="0.20" max="0.90" step="0.01" value="0.40" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-entretien-ev">Annual maintenance</span>
+            <span class="param-val"  id="val-entretien-ev">150 €/yr</span>
+          </div>
+          <input type="range" id="entretien-ev" min="0" max="2000" step="50" value="150" oninput="update()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Usage + CO2 -->
+    <div class="usage-row">
+      <div class="param-section">
+        <div class="section-header">🛣️ <span id="h-sec-usage">Usage</span></div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-km">Annual mileage</span>
+            <span class="param-val"  id="val-km">15,000 km/year</span>
+          </div>
+          <input type="range" id="km" min="3000" max="80000" step="1000" value="15000" oninput="update()">
+        </div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-years">Ownership period</span>
+            <span class="param-val"  id="val-years">5 years</span>
+          </div>
+          <input type="range" id="years" min="1" max="10" step="1" value="5" oninput="update()">
+        </div>
+      </div>
+
+      <div class="param-section">
+        <div class="section-header">🌱 <span id="h-sec-co2">CO₂ Footprint</span></div>
+
+        <div class="param-row">
+          <div class="param-label">
+            <span class="param-name" id="h-co2-mix">Electricity mix</span>
+            <span class="param-val"  id="val-co2-mix">52 gCO₂/kWh</span>
+          </div>
+          <input type="range" id="co2-mix" min="20" max="700" step="10" value="52" oninput="update()">
+        </div>
+
+        <p id="h-co2-hint" style="font-size:0.78rem; color:var(--gray-600); margin-top:0.6rem; line-height:1.7;">
+          🇫🇷 France: ~52 g/kWh<br>
+          🇪🇺 EU average: ~250 g/kWh<br>
+          🇩🇪 Germany: ~380 g/kWh
+        </p>
+      </div>
+    </div>
+
+    <!-- Purchase price -->
+    <div class="section-sep" id="h-sep-achat">Purchase Price</div>
+
+    <div class="params-grid">
+      <div class="param-section">
+        <div class="section-header">🚗 <span id="h-sec-achat-th">ICE Vehicle</span></div>
+        <div class="param-row">
+          <div class="param-label"><span class="param-name" id="h-achat-th">Purchase price</span></div>
+          <input type="number" id="prix-th" value="28000" min="5000" max="200000" step="500" oninput="update()">
+        </div>
+      </div>
+      <div class="param-section">
+        <div class="section-header">🔋 <span id="h-sec-achat-ev">Electric Vehicle</span></div>
+        <div class="param-row">
+          <div class="param-label"><span class="param-name" id="h-achat-ev">Purchase price</span></div>
+          <input type="number" id="prix-ev" value="35000" min="10000" max="200000" step="500" oninput="update()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESULTS ═══ -->
+  <div class="card">
+    <div class="card-title" id="h-card-results">Results – 5-year simulation</div>
+
+    <div class="breakeven" id="breakeven-bar">
+      <div class="be-icon">🎯</div>
+      <div class="be-text">
+        <strong id="be-title">–</strong>
+        <span   id="be-sub">–</span>
+      </div>
+    </div>
+
+    <div class="results-hero">
+      <div class="result-box">
+        <div class="rlabel" id="h-lbl-tco-th">Total ICE cost</div>
+        <div class="rvalue c-th" id="res-tco-th">–</div>
+        <div class="runit"  id="h-unit-tco-th">over 5 years</div>
+      </div>
+      <div class="result-box highlight">
+        <div class="rlabel" id="h-lbl-savings">Net savings with EV</div>
+        <div class="rvalue" id="res-savings">–</div>
+        <div class="runit"  id="h-unit-savings">over 5 years</div>
+      </div>
+      <div class="result-box">
+        <div class="rlabel" id="h-lbl-tco-ev">Total EV cost</div>
+        <div class="rvalue c-ev" id="res-tco-ev">–</div>
+        <div class="runit"  id="h-unit-tco-ev">over 5 years</div>
+      </div>
+    </div>
+
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">🌿</div>
+        <div>
+          <div class="metric-value" id="res-co2">–</div>
+          <div class="metric-label" id="h-lbl-co2">kg of CO₂ saved over 5 years</div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">⛽</div>
+        <div>
+          <div class="metric-value" id="res-energy-savings">–</div>
+          <div class="metric-label" id="h-lbl-energy">in energy savings per year</div>
+        </div>
+      </div>
+    </div>
+
+    <table class="breakdown">
+      <thead>
+        <tr>
+          <th id="h-th-poste">Item</th>
+          <th class="c-th" id="h-th-thermal">ICE</th>
+          <th class="c-ev" id="h-th-ev">Electric (EV)</th>
+          <th id="h-th-advantage">EV advantage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="h-td-achat">Purchase price</td>
+          <td id="td-achat-th">–</td><td id="td-achat-ev">–</td><td id="td-achat-diff">–</td>
+        </tr>
+        <tr>
+          <td id="h-td-energy">Energy – 5 years</td>
+          <td id="td-energy-th">–</td><td id="td-energy-ev">–</td><td id="td-energy-diff">–</td>
+        </tr>
+        <tr>
+          <td id="h-td-maint">Maintenance – 5 years</td>
+          <td id="td-maint-th">–</td><td id="td-maint-ev">–</td><td id="td-maint-diff">–</td>
+        </tr>
+        <tr class="total">
+          <td id="h-td-total"><strong>Total over 5 years</strong></td>
+          <td id="td-total-th">–</td><td id="td-total-ev">–</td><td id="td-total-diff">–</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="chart-wrap"><canvas id="tco-chart"></canvas></div>
+
+    <p class="note" id="h-note" style="margin-top:1rem;">
+      Estimates based on entered parameters only. Excludes insurance, depreciation, and any regional incentives.
+      Public charging rates based on DRIVECO AC tariffs.
+    </p>
+  </div>
+
+</main>
+
+<script>
+// ── Top 20 EV models in Europe (real-world consumption) ──────────────────────
+const EV_MODELS = [
+  { name: 'Tesla Model Y',          conso: 16 },
+  { name: 'Tesla Model 3',          conso: 14 },
+  { name: 'Volkswagen ID.4',        conso: 18 },
+  { name: 'Volkswagen ID.3',        conso: 15 },
+  { name: 'Renault Mégane E-Tech',  conso: 16 },
+  { name: 'Peugeot e-208',          conso: 14 },
+  { name: 'Fiat 500e',              conso: 13 },
+  { name: 'Hyundai Ioniq 5',        conso: 18 },
+  { name: 'Kia EV6',                conso: 17 },
+  { name: 'Skoda Enyaq iV',         conso: 17 },
+  { name: 'MG4',                    conso: 15 },
+  { name: 'Audi Q4 e-tron',         conso: 19 },
+  { name: 'BMW iX3',                conso: 19 },
+  { name: 'Hyundai Kona Electric',  conso: 14 },
+  { name: 'Kia Niro EV',            conso: 15 },
+  { name: 'Opel Mokka-e',           conso: 14 },
+  { name: 'BYD Atto 3',             conso: 20 },
+  { name: 'Volvo EX40',             conso: 19 },
+  { name: 'Mercedes EQA',           conso: 18 },
+  { name: 'Jeep Avenger Electric',  conso: 15 },
+];
+
+// ── Translations ──────────────────────────────────────────────────────────────
+const STRINGS = {
+  en: {
+    locale: 'en-GB', decimal: '.',
+    pageTitle:    'EV Savings Calculator – ICE vs Electric',
+    cardParams:   'Simulator Parameters',
+    fuelPetrol:   'Petrol', fuelDiesel: 'Diesel',
+    secThermal:   'ICE Vehicle', secEv: 'Electric Vehicle',
+    secUsage:     'Usage', secCo2: 'CO₂ Footprint',
+    sepAchat:     'Purchase Price',
+    secAchatTh:   'ICE Vehicle', secAchatEv: 'Electric Vehicle',
+    consoPetrol:  'Petrol consumption', consoDiesel: 'Diesel consumption',
+    prixPetrol:   'Petrol price', prixDiesel: 'Diesel price',
+    entretienTh:  'Annual maintenance', achatTh: 'Purchase price',
+    vehicleModel: 'Vehicle model',
+    customOption: '— Custom (manual entry) —',
+    consoEv:      'Consumption',
+    pctHome:      'Home charging share', tarifHome: 'Home rate',
+    tarifDriveco: 'DRIVECO rate (public charging)',
+    entretienEv:  'Annual maintenance', achatEv: 'Purchase price',
+    km: 'Annual mileage', yearsDet: 'Ownership period', co2mix: 'Electricity mix',
+    co2hint: '🇫🇷 France: ~52 g/kWh<br>🇪🇺 EU average: ~250 g/kWh<br>🇩🇪 Germany: ~380 g/kWh',
+    cardResults:  (y) => `Results – ${y} simulation`,
+    lblTcoTh:     'Total ICE cost', lblSavings: 'Net savings with EV', lblTcoEv: 'Total EV cost',
+    unitOver:     (y) => `over ${y}`,
+    lblCo2:       (y) => `kg of CO₂ saved over ${y}`,
+    lblEnergy:    'in energy savings per year',
+    thPoste: 'Item', thThermal: 'ICE', thEv: 'Electric (EV)', thAdvantage: 'EV advantage',
+    tdAchat:  'Purchase price',
+    tdEnergy: (y) => `Energy – ${y}`,
+    tdMaint:  (y) => `Maintenance – ${y}`,
+    tdTotal:  (y) => `Total over ${y}`,
+    beNever:      'No break-even with these parameters',
+    beNeverSub:   "Energy savings don't offset the EV's higher annual running cost.",
+    beInstant:    'Profitable from day one!',
+    beInstantSub: 'The EV is cheaper to buy and cheaper to run.',
+    beTooLong:    'Break-even > 20 years with these parameters',
+    beTooLongSub: 'Try adjusting the purchase price or annual mileage.',
+    beMain:       (lbl) => `Break-even reached ${lbl}`,
+    beSub:        'From that point, every kilometre driven generates additional savings.',
+    yearsLabel:   (n) => n > 1 ? `${n} years` : `${n} year`,
+    yearUnit:     (y, m) => {
+      const yp = y > 0 ? `${y} year${y > 1 ? 's' : ''}` : '';
+      const mp = m > 0 ? `${m} month${m > 1 ? 's' : ''}` : '';
+      return [yp, mp].filter(Boolean).join(' and ');
+    },
+    beIn: (lbl) => `in ${lbl}`,
+    chartYear: (n) => `Year ${n}`,
+    unitPerYear: '/year', unitKmYear: 'km/year',
+    chartTh: 'ICE (cumulative TCO)', chartEv: 'Electric – EV (cumulative TCO)',
+    note: 'Estimates based on entered parameters only. Excludes insurance, depreciation, and any regional incentives. Public charging rates based on DRIVECO AC tariffs.',
+  },
+  fr: {
+    locale: 'fr-FR', decimal: ',',
+    pageTitle:    "Simulateur d'économies – Thermique vs Électrique",
+    cardParams:   'Paramètres du simulateur',
+    fuelPetrol:   'Essence', fuelDiesel: 'Diesel',
+    secThermal:   'Véhicule thermique', secEv: 'Véhicule électrique',
+    secUsage:     'Usage', secCo2: 'Empreinte CO₂',
+    sepAchat:     "Prix d'achat",
+    secAchatTh:   'Véhicule thermique', secAchatEv: 'Véhicule électrique',
+    consoPetrol:  'Consommation essence', consoDiesel: 'Consommation diesel',
+    prixPetrol:   'Prix essence', prixDiesel: 'Prix diesel',
+    entretienTh:  'Entretien annuel', achatTh: "Prix d'achat",
+    vehicleModel: 'Modèle de véhicule',
+    customOption: '— Personnalisé (saisie libre) —',
+    consoEv:      'Consommation',
+    pctHome:      'Recharge à domicile', tarifHome: 'Tarif domicile',
+    tarifDriveco: 'Tarif DRIVECO (recharge publique)',
+    entretienEv:  'Entretien annuel', achatEv: "Prix d'achat",
+    km: 'Distance annuelle', yearsDet: 'Durée de détention', co2mix: 'Mix électrique',
+    co2hint: '🇫🇷 France : ~52 g/kWh<br>🇪🇺 Moyenne Europe : ~250 g/kWh<br>🇩🇪 Allemagne : ~380 g/kWh',
+    cardResults:  (y) => `Résultats – simulation sur ${y}`,
+    lblTcoTh:     'Coût total thermique', lblSavings: 'Économies nettes avec le VE', lblTcoEv: 'Coût total VE',
+    unitOver:     (y) => `sur ${y}`,
+    lblCo2:       (y) => `kg de CO₂ économisés sur ${y}`,
+    lblEnergy:    "d'économies sur l'énergie par an",
+    thPoste: 'Poste', thThermal: 'Thermique', thEv: 'Électrique (VE)', thAdvantage: 'Avantage VE',
+    tdAchat:  "Prix d'achat",
+    tdEnergy: (y) => `Énergie – ${y}`,
+    tdMaint:  (y) => `Entretien – ${y}`,
+    tdTotal:  (y) => `Total sur ${y}`,
+    beNever:      'Pas de rentabilité avec ces paramètres',
+    beNeverSub:   "Les économies d'énergie ne compensent pas le surcoût annuel du VE.",
+    beInstant:    "Rentable dès l'achat !",
+    beInstantSub: "Le VE est moins cher à l'achat et coûte moins à l'usage.",
+    beTooLong:    'Rentabilité > 20 ans avec ces paramètres',
+    beTooLongSub: "Ajustez le prix d'achat ou la distance annuelle pour améliorer ce résultat.",
+    beMain:       (lbl) => `Rentabilité atteinte ${lbl}`,
+    beSub:        'À partir de ce moment, chaque km génère des économies supplémentaires.',
+    yearsLabel:   (n) => n > 1 ? `${n} ans` : `${n} an`,
+    yearUnit:     (y, m) => {
+      const yp = y > 0 ? `${y} an${y > 1 ? 's' : ''}` : '';
+      const mp = m > 0 ? `${m} mois` : '';
+      return [yp, mp].filter(Boolean).join(' et ');
+    },
+    beIn: (lbl) => `en ${lbl}`,
+    chartYear: (n) => `Année ${n}`,
+    unitPerYear: '/an', unitKmYear: 'km/an',
+    chartTh: 'Thermique (TCO cumulé)', chartEv: 'Électrique – VE (TCO cumulé)',
+    note: "Estimation basée sur les paramètres renseignés. Hors assurance, dépréciation et aides régionales éventuelles. Recharge publique calculée sur la base des tarifs DRIVECO AC.",
+  },
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let lang = 'en', fuelType = 'petrol', chart = null, customConso = 17;
+
+const FUEL_DEFAULTS = {
+  petrol: { conso: 7.5, prix: 1.85, co2factor: 2370 },
+  diesel: { conso: 5.5, prix: 1.72, co2factor: 2650 },
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const T   = () => STRINGS[lang];
+const el  = (id) => document.getElementById(id);
+const txt = (id, v) => { const e = el(id); if (e) e.textContent = v; };
+const htm = (id, v) => { const e = el(id); if (e) e.innerHTML   = v; };
+const r   = (id) => parseFloat(el(id).value);
+
+const fmtEur = (n) =>
+  (n < 0 ? '-' : '') + Math.abs(Math.round(n)).toLocaleString(T().locale) + ' €';
+
+const fmtSign = (n) => {
+  const s = Math.abs(Math.round(n)).toLocaleString(T().locale);
+  return n > 0 ? '+' + s + ' €' : n < 0 ? '-' + s + ' €' : '0 €';
+};
+
+const fmtDec = (n, d) => n.toFixed(d).replace('.', T().decimal);
+
+const getConsoEv = () => {
+  const v = el('vehicle-select').value;
+  return v === 'custom' ? customConso : parseFloat(v);
+};
+
+// ── Vehicle selector ──────────────────────────────────────────────────────────
+function buildVehicleSelect() {
+  const sel = el('vehicle-select');
+  const prev = sel.value;
+  sel.innerHTML = '';
+
+  const opt0 = document.createElement('option');
+  opt0.value = 'custom';
+  opt0.textContent = T().customOption;
+  sel.appendChild(opt0);
+
+  EV_MODELS.forEach(m => {
+    const o = document.createElement('option');
+    o.value = m.conso;
+    o.textContent = `${m.name}  –  ${m.conso} kWh/100km`;
+    sel.appendChild(o);
+  });
+
+  // Restore or default to Tesla Model Y
+  if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+  else sel.value = String(EV_MODELS[0].conso);
+}
+
+function onVehicleChange() {
+  const v = el('vehicle-select').value;
+  const isCustom = v === 'custom';
+  el('row-conso-custom').style.display = isCustom ? 'block' : 'none';
+  const conso = isCustom ? customConso : parseFloat(v);
+  el('conso-badge').textContent = '⚡ ' + fmtDec(conso, 0) + ' kWh/100km';
+  update();
+}
+
+function onCustomConso() {
+  customConso = r('conso-ev');
+  txt('val-conso-ev', fmtDec(customConso, 1) + ' kWh/100km');
+  el('conso-badge').textContent = '⚡ ' + fmtDec(customConso, 1) + ' kWh/100km';
+  update();
+}
+
+// ── Language ──────────────────────────────────────────────────────────────────
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  el('lang-en').classList.toggle('active', l === 'en');
+  el('lang-fr').classList.toggle('active', l === 'fr');
+  applyLang();
+  update();
+}
+
+function applyLang() {
+  const s = T();
+  txt('h-page-title',    s.pageTitle);
+  txt('h-card-params',   s.cardParams);
+  txt('h-fuel-petrol',   s.fuelPetrol);
+  txt('h-fuel-diesel',   s.fuelDiesel);
+  txt('h-sec-thermal',   s.secThermal);
+  txt('h-sec-ev',        s.secEv);
+  txt('h-sec-usage',     s.secUsage);
+  txt('h-sec-co2',       s.secCo2);
+  txt('h-sep-achat',     s.sepAchat);
+  txt('h-sec-achat-th',  s.secAchatTh);
+  txt('h-sec-achat-ev',  s.secAchatEv);
+  txt('h-entretien-th',  s.entretienTh);
+  txt('h-achat-th',      s.achatTh);
+  txt('h-vehicle-model', s.vehicleModel);
+  txt('h-conso-ev',      s.consoEv);
+  txt('h-pct-home',      s.pctHome);
+  txt('h-tarif-home',    s.tarifHome);
+  txt('h-tarif-driveco', s.tarifDriveco);
+  txt('h-entretien-ev',  s.entretienEv);
+  txt('h-achat-ev',      s.achatEv);
+  txt('h-km',            s.km);
+  txt('h-years',         s.yearsDet);
+  txt('h-co2-mix',       s.co2mix);
+  htm('h-co2-hint',      s.co2hint);
+  txt('h-lbl-tco-th',    s.lblTcoTh);
+  txt('h-lbl-savings',   s.lblSavings);
+  txt('h-lbl-tco-ev',    s.lblTcoEv);
+  txt('h-lbl-energy',    s.lblEnergy);
+  txt('h-th-poste',      s.thPoste);
+  txt('h-th-thermal',    s.thThermal);
+  txt('h-th-ev',         s.thEv);
+  txt('h-th-advantage',  s.thAdvantage);
+  txt('h-td-achat',      s.tdAchat);
+  txt('h-note',          s.note);
+  txt('lbl-conso-th',    fuelType === 'petrol' ? s.consoPetrol : s.consoDiesel);
+  txt('lbl-prix-carb',   fuelType === 'petrol' ? s.prixPetrol  : s.prixDiesel);
+  buildVehicleSelect();
+}
+
+// ── Fuel ──────────────────────────────────────────────────────────────────────
+function setFuel(type) {
+  fuelType = type;
+  el('btn-petrol').classList.toggle('active', type === 'petrol');
+  el('btn-diesel').classList.toggle('active', type === 'diesel');
+  const d = FUEL_DEFAULTS[type];
+  el('conso-th').value = d.conso;
+  el('prix-carb').value = d.prix;
+  applyLang();
+  update();
+}
+
+// ── Main update ───────────────────────────────────────────────────────────────
+function update() {
+  const s = T();
+
+  const conso_th   = r('conso-th');
+  const prix_carb  = r('prix-carb');
+  const entret_th  = r('entretien-th');
+  const prix_th    = r('prix-th');
+  const conso_ev   = getConsoEv();
+  const pct_home   = r('pct-home') / 100;
+  const tarif_home = r('tarif-home');
+  const tarif_drv  = r('tarif-driveco');
+  const entret_ev  = r('entretien-ev');
+  const prix_ev    = r('prix-ev');
+  const km         = r('km');
+  const years      = r('years');
+  const co2_mix    = r('co2-mix');
+
+  const yearsLbl = s.yearsLabel(years);
+  const yrUnit   = lang === 'fr' ? 'an' : 'yr';
+
+  // Slider labels
+  txt('val-conso-th',      fmtDec(conso_th, 1) + ' L/100km');
+  txt('val-prix-carb',     fmtDec(prix_carb, 2) + ' €/L');
+  txt('val-entretien-th',  Math.round(entret_th).toLocaleString(s.locale) + ' €/' + yrUnit);
+  txt('val-pct-home',      Math.round(r('pct-home')) + ' %');
+  txt('val-tarif-home',    fmtDec(tarif_home, 2) + ' €/kWh');
+  txt('val-tarif-driveco', fmtDec(tarif_drv,  2) + ' €/kWh');
+  txt('val-entretien-ev',  Math.round(entret_ev).toLocaleString(s.locale) + ' €/' + yrUnit);
+  txt('val-km',            Math.round(km).toLocaleString(s.locale) + ' ' + s.unitKmYear);
+  txt('val-years',         yearsLbl);
+  txt('val-co2-mix',       co2_mix + ' gCO₂/kWh');
+  el('conso-badge').textContent = '⚡ ' + fmtDec(conso_ev, 1) + ' kWh/100km';
+
+  // Dynamic labels
+  txt('h-card-results', s.cardResults(yearsLbl));
+  txt('h-unit-tco-th',  s.unitOver(yearsLbl));
+  txt('h-unit-savings', s.unitOver(yearsLbl));
+  txt('h-unit-tco-ev',  s.unitOver(yearsLbl));
+  txt('h-lbl-co2',      s.lblCo2(yearsLbl));
+  txt('h-td-energy',    s.tdEnergy(yearsLbl));
+  txt('h-td-maint',     s.tdMaint(yearsLbl));
+  htm('h-td-total',     `<strong>${s.tdTotal(yearsLbl)}</strong>`);
+
+  // Costs
+  const annual_energy_th = (conso_th / 100) * prix_carb * km;
+  const kwh_total        = (conso_ev / 100) * km;
+  const annual_energy_ev = kwh_total * pct_home * tarif_home + kwh_total * (1 - pct_home) * tarif_drv;
+  const annual_th = annual_energy_th + entret_th;
+  const annual_ev = annual_energy_ev + entret_ev;
+  const tco_th    = prix_th + annual_th * years;
+  const tco_ev    = prix_ev + annual_ev * years;
+  const savings   = tco_th - tco_ev;
+
+  // Breakeven
+  const delta = prix_ev - prix_th;
+  const asave = annual_th - annual_ev;
+  const bar   = el('breakeven-bar');
+
+  if (asave <= 0) {
+    bar.className = 'breakeven negative';
+    txt('be-title', s.beNever); txt('be-sub', s.beNeverSub);
+  } else if (delta <= 0) {
+    bar.className = 'breakeven';
+    txt('be-title', s.beInstant); txt('be-sub', s.beInstantSub);
+  } else {
+    const bey = delta / asave;
+    if (bey > 20) {
+      bar.className = 'breakeven negative';
+      txt('be-title', s.beTooLong); txt('be-sub', s.beTooLongSub);
+    } else {
+      const by = Math.floor(bey), bm = Math.round((bey - by) * 12);
+      bar.className = 'breakeven';
+      txt('be-title', s.beMain(s.beIn(s.yearUnit(by, bm))));
+      txt('be-sub',   s.beSub);
+    }
+  }
+
+  // CO2
+  const co2_th = (conso_th / 100) * FUEL_DEFAULTS[fuelType].co2factor * km / 1000;
+  const co2_ev = (conso_ev / 100) * co2_mix * km / 1000;
+  const co2_saved = Math.max(0, (co2_th - co2_ev) * years);
+
+  // Hero
+  txt('res-tco-th',        fmtEur(tco_th));
+  txt('res-tco-ev',        fmtEur(tco_ev));
+  txt('res-savings',       fmtEur(savings));
+  txt('res-co2',           Math.round(co2_saved).toLocaleString(s.locale) + ' kg');
+  txt('res-energy-savings', fmtEur(annual_energy_th - annual_energy_ev) + s.unitPerYear);
+
+  // Table
+  const sc = (v) => `<span class="${v >= 0 ? 'c-save' : 'c-lose'}">${fmtSign(v)}</span>`;
+  txt('td-achat-th',    fmtEur(prix_th));    txt('td-achat-ev',    fmtEur(prix_ev));    htm('td-achat-diff',  sc(prix_th - prix_ev));
+  txt('td-energy-th',   fmtEur(annual_energy_th * years)); txt('td-energy-ev', fmtEur(annual_energy_ev * years)); htm('td-energy-diff', sc((annual_energy_th - annual_energy_ev) * years));
+  txt('td-maint-th',    fmtEur(entret_th * years)); txt('td-maint-ev', fmtEur(entret_ev * years)); htm('td-maint-diff', sc((entret_th - entret_ev) * years));
+  txt('td-total-th',    fmtEur(tco_th));     txt('td-total-ev',    fmtEur(tco_ev));     htm('td-total-diff',  sc(savings));
+
+  // Chart
+  const maxY = Math.max(years, 10);
+  const labels = [], dataTh = [], dataEv = [];
+  for (let y = 0; y <= maxY; y++) {
+    labels.push(s.chartYear(y));
+    dataTh.push(Math.round(prix_th + annual_th * y));
+    dataEv.push(Math.round(prix_ev + annual_ev * y));
+  }
+
+  if (chart) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data  = dataTh; chart.data.datasets[0].label = s.chartTh;
+    chart.data.datasets[1].data  = dataEv; chart.data.datasets[1].label = s.chartEv;
+    chart.options.plugins.tooltip.callbacks.label = (c) => ' ' + c.dataset.label + ' : ' + c.parsed.y.toLocaleString(s.locale) + ' €';
+    chart.options.scales.y.ticks.callback = (v) => v.toLocaleString(s.locale) + ' €';
+    chart.update();
+  } else {
+    const ctx = el('tco-chart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: s.chartTh, data: dataTh, borderColor: '#e05858', backgroundColor: 'rgba(224,88,88,0.07)', borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
+        { label: s.chartEv, data: dataEv, borderColor: '#00bf8f', backgroundColor: 'rgba(0,191,143,0.07)', borderWidth: 2.5, pointRadius: 3, tension: 0.3, fill: false },
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top', labels: { font: { size: 12, weight: '600' }, padding: 16, usePointStyle: true, pointStyleWidth: 20 } },
+          tooltip: { callbacks: { label: (c) => ' ' + c.dataset.label + ' : ' + c.parsed.y.toLocaleString(s.locale) + ' €' } },
+        },
+        scales: {
+          x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 } } },
+          y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 11 }, callback: (v) => v.toLocaleString(s.locale) + ' €' } },
+        },
+      },
+    });
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildVehicleSelect();
+onVehicleChange();
+</script>
+</body>
+</html>
